@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BKPSDM Kabupaten Lamongan - Inventaris Barang</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 25%, #34495e 75%, #2c3e50 100%);
+            min-height: 100vh;
+            color: #2c3e50;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #1a252f 0%, #2c3e50 50%, #34495e 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            border-bottom: 3px solid #c0392b;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1;
+        }
+
+        .header img {
+            height: 80px;
+            width: 70px;
+            border-radius: 50%;
+            //border: 2px solid #c0392b;
+            transition: transform 0.3s ease;
+        }
+
+        .header img:hover {
+            transform: scale(1.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        /* Announcement Banner */
+        .announcement {
+            background: linear-gradient(45deg, #c0392b, #a93226);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid #922b21;
+        }
+
+        .announcement::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: slide 4s infinite;
+        }
+
+        @keyframes slide {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .content-card {
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(44, 62, 80, 0.15);
+            border: 1px solid rgba(189, 195, 199, 0.3);
+        }
+
+        /* Search Section */
+        .search-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .search-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .search-subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 60px;
+            border: 2px solid #e0e6ed;
+            border-radius: 30px;
+            padding: 0 60px 0 20px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-input:focus {
+            border-color: #2980b9;
+            box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.15);
+            transform: scale(1.02);
+        }
+
+        .search-input::placeholder {
+            color: #bdc3c7;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 20px;
+        }
+
+        .search-hint {
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #ecf0f1;
+            border-top: 3px solid #2980b9;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results Section */
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #2980b9, #1f618d);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .results-count {
+            font-weight: 600;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #f1f3f4;
+            font-size: 13px;
+        }
+
+        tr:hover {
+            background-color: #ebf3fd;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: #fef9e7;
+            color: #7d6608;
+            //border: 1px solid #f4d03f;
+        }
+
+        .status-completed {
+            background: #eafaf1;
+            color: #0e6b37;
+            //border: 1px solid #58d68d;
+        }
+
+        .status-processing {
+            background: #ebf3fd;
+            color: #1b4f72;
+            //border: 1px solid #5dade2;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(44, 62, 80, 0.6);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-icon {
+            font-size: 60px;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .modal h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .modal p {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .close-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .content-card {
+                padding: 20px;
+                margin: 15px;
+            }
+
+            .search-title {
+                font-size: 24px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px 5px;
+            }
+        }
+
+        /* Animation for table rows */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-row {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-container">
+            <img src="https://diskominfo.lamongankab.go.id/assets/img/logo/logo-pemkab-lamongan-116x166.png" alt="Logo Lamongan">
+            <div>
+                <h1>BKPSDM KABUPATEN LAMONGAN</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcement Banner -->
+    <div class="announcement">
+        <h2>📋 KARTU INVENTARIS BARANG BIDANG SEKRETARIAT</h2>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="content-card">
+            <!-- Search Section -->
+            <div class="search-section">
+                <h2 class="search-title">Pencarian Barang</h2>
+                <p class="search-subtitle">Masukkan nama barang</p>
+                
+                <div class="search-container">
+                    <input type="text" id="nopeserta" class="search-input" placeholder="Masukkan nama barang/penanggung jawab/kode barang">
+                    <div class="search-icon">🔍</div>
+                </div>
+                
+                <div class="search-hint">
+                    💡 <em>Tekan Enter atau double-click untuk mencari</em>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Sedang mencari data...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <!-- Modal for No Data Found -->
+    <div id="noDataModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">😔</div>
+            <h2>Data Tidak Ditemukan</h2>
+            <p>Maaf, data dengan nomor peserta yang Anda cari tidak tersedia dalam sistem.</p>
+            <p>Pastikan nomor peserta yang dimasukkan sudah benar.</p>
+            <button class="close-btn" onclick="closeModal()">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        var inputNopeserta = document.getElementById('nopeserta');
+        var loadingEl = document.getElementById('loading');
+        var resultEl = document.getElementById('result');
+        var modal = document.getElementById('noDataModal');
+
+        // Event listeners
+        inputNopeserta.addEventListener('dblclick', search);
+        inputNopeserta.addEventListener('keydown', function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                search();
+            }
+        });
+
+        // Auto-hide results when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.search-container') && !event.target.closest('#result')) {
+                inputNopeserta.blur();
+            }
+        });
+
+        function search() {
+            var nopeserta = inputNopeserta.value.trim();
+            
+            if (nopeserta === '') {
+                resultEl.innerHTML = '';
+                return;
+            }
+
+            // Show loading
+            loadingEl.style.display = 'block';
+            resultEl.innerHTML = '';
+
+            // Google Apps Script call
+            google.script.run.withSuccessHandler(showResult).searchStudent(nopeserta);
+            
+            // For demo purposes, simulate a delay and result
+            //setTimeout(function() {
+                //loadingEl.style.display = 'none';
+                // Simulate no results for demo
+                //showResult([]);
+            //}, 1500);
+        }
+
+        function showResult(result) {
+            loadingEl.style.display = 'none';
+            
+            if (result.length > 0) {
+                var html = '<div class="results-section">';
+                html += '<div class="results-header">';
+                html += '<div class="results-count">✅ Ditemukan ' + result.length + ' data</div>';
+                html += '<div>📊 Hasil Pencarian</div>';
+                html += '</div>';
+                
+                html += '<div class="table-container">';
+                html += '<table>';
+                html += '<tr>';
+                html += '<th>No</th>';
+                html += '<th>Nama Barang/Jenis Barang</th>';
+                html += '<th>Merk / Model</th>';
+                html += '<th>Tahun Pembuatan/Pembelian</th>';
+                html += '<th>No. Kode Barang</th>';
+                html += '<th>Jumlah Barang/Register</th>';
+                html += '<th>Penanggung Jawab</th>';
+                html += '<th>Keadaan Barang</th>';
+                html += '<th>QR Code</th>';
+                html += '</tr>';
+                
+                for (var i = 0; i < result.length; i++) {
+                    html += '<tr class="fade-in-row" style="animation-delay: ' + (i * 0.1) + 's">';
+                    html += '<td>' + result[i][1] + '</td>';
+                    html += '<td>' + result[i][2] + '</td>';
+                    html += '<td>' + result[i][3] + '</td>';
+                    html += '<td><strong>' + result[i][4] + '</strong></td>';
+                    html += '<td>' + result[i][5] + '</td>';
+                    html += '<td><span class="status-badge status-' + getStatusClass(result[i][6]) + '">' + result[i][6] + '</span></td>';
+                    html += '<td>' + result[i][7] + '</td>';
+                    html += '<td>' + result[i][8] + '</td>';
+                    html += '<td>' + result[i][9] + '</td>';
+                    html += '</tr>';
+                }
+                html += '</table>';
+                html += '</div>';
+                html += '</div>';
+                
+                resultEl.innerHTML = html;
+            } else {
+                modal.style.display = 'block';
+            }
+        }
+
+        function getStatusClass(status) {
+            if (status && status.toLowerCase().includes('selesai')) return 'completed';
+            if (status && status.toLowerCase().includes('diambil')) return 'completed';
+            if (status && status.toLowerCase().includes('proses')) return 'processing';
+            return 'pending';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            inputNopeserta.focus();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Focus input on page load
+        window.onload = function() {
+            inputNopeserta.focus();
+        }
+    </script>
+</body>
+</html>
